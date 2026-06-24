@@ -10,6 +10,21 @@ declare global {
         created_at: Date;
     }
 
+    interface Vocab{
+        user_id : number;
+        id: number;
+        indonesia: string;
+        english: string;
+        added_at: Date;
+    }
+
+    interface Pagination{
+        page: number
+        limit:number
+        totalPage: number
+        totalItem:number
+    }
+
     interface ResBody {
         success: boolean;
         message: string;
