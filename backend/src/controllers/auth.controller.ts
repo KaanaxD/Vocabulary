@@ -3,7 +3,7 @@ import { z } from "zod"
 import authService from '../services/auth.service';
 const reqBodySchema = z.object({
     username: z.string("input berupa string").min(3, "username minimal 3 karakter"),
-    password: z.string("input ebrupa string").min(8, "password minimal 3 karakter")
+    password: z.string("input ebrupa string").min(8, "password minimal 8 karakter")
 })
 
 type ReqBody = z.infer<typeof reqBodySchema>
@@ -16,7 +16,7 @@ export default function authController() {
                 const data = await authService().addUser(username, password)
                 res.json({
                     success: true,
-                    message: '',
+                    message: 'akun berhasil didaftar',
                     data: data
                 })
             } catch (error) {

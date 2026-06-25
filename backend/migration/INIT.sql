@@ -1,7 +1,7 @@
 -- Active: 1778991421142@@127.0.0.1@5432@vocab
 CREATE TABLE users(
     id SERIAL PRIMARY KEY,
-    username TEXT NOT NULL,
+    username TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
 );
@@ -9,10 +9,12 @@ CREATE TABLE users(
 CREATE TABLE vocab(
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    english TEXT NOT NULL,
-    indonesia TEXT NOT NULL,
+    english TEXT NOT NULL UNIQUE,
+    indonesia TEXT NOT NULL UNIQUE,
     added_at TIMESTAMP DEFAULT NOW()
-)-- 10 Vocabulary for User 1 (arkab)
+)
+
+
 INSERT INTO vocab (user_id, english, indonesia) VALUES
 (1, 'Apple', 'Apel'),
 (1, 'Book', 'Buku'),

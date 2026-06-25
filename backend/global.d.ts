@@ -10,19 +10,19 @@ declare global {
         created_at: Date;
     }
 
-    interface Vocab{
-        user_id : number;
+    interface Vocab {
+        user_id: number;
         id: number;
         indonesia: string;
         english: string;
         added_at: Date;
     }
 
-    interface Pagination{
+    interface Pagination {
         page: number
-        limit:number
+        limit: number
         totalPage: number
-        totalItem:number
+        totalItem: number
     }
 
     interface ResBody {
@@ -33,6 +33,16 @@ declare global {
         token?: string
     }
 
+    interface UserHeader {
+        id: number
+        name: string
+    }
+
+    namespace Express {
+        interface Request {
+            user: UserHeader
+        }
+    }
 
 }
 

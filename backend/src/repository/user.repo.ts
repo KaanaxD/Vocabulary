@@ -1,9 +1,9 @@
 import { pool } from "../configs/pg"
 
-export default function userRepo(){
+export default function userRepository(){
     return {
         getUserById: async (id:number)=>{
-            const item = await pool.query<User>(`SELECT * FROM users WHERE id=$1`,[id])
+            const item = await pool.query<User>(`SELECT users.id,users.username,COUNT(vocab.english) as total_vocab FROM users JOIN vocab ON vocab.user_id = users.id WHERE vocab.user_id=$1 GROUP BY users.id`,[id])
             if(item.rows.length==0) return null
             return item.rows
         },

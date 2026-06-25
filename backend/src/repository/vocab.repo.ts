@@ -6,17 +6,17 @@ export default function vocabRepository() {
             const offset = (page - 1) * limit
             const vocab = await pool.query(`SELECT * FROM vocab WHERE user_id = $1 LIMIT $2 OFFSET $3`, [user_id, limit, offset])
             const totalItem = await pool.query(`SELECT COUNT(*) FROM vocab WHERE user_id = $1`, [user_id])
-            const totalPage = Math.ceil(Number(totalItem.rows[0]) / limit)
+            const totalPage = Math.ceil(Number(totalItem.rows[0].count) / limit)
             if (!vocab) {
                 return null
             }
             return {
                 data: vocab.rows,
                 pagination: {
-                    page: page,
-                    limit: limit,
+                    page: Number(page),
+                    limit: Number(limit),
                     totalPage: totalPage,
-                    totalItem: Number(totalItem)
+                    totalItem: Number(totalItem.rows[0].count)
                 }
             }
         },
