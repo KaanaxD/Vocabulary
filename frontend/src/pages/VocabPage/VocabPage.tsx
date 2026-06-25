@@ -1,14 +1,9 @@
 import { useEffect, useState, useCallback } from 'react'
 import api from '../../services/api'
+import type { ApiResponse, Vocab, VocabListResponse, VocabPayload } from '../../types/api'
+import getErrorMessage from '../../utils/getErrorMessage'
 import VocabForm from '../../components/common/VocabForm'
 import ConfirmDelete from '../../components/common/ConfirmDelete'
-
-interface Vocab {
-  id: number
-  indonesia: string
-  english: string
-  added_at: string
-}
 
 export default function VocabPage() {
   const [vocabs, setVocabs] = useState<Vocab[]>([])
@@ -21,15 +16,17 @@ export default function VocabPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
+  const [loadError, setLoadError] = useState('')
 
   const fetchVocabs = useCallback((p: number) => {
-    return api.get('/vocab', { params: { page: p, limit: 10 } })
+    return api.get<ApiResponse<VocabListResponse>>('/vocab', { params: { page: p, limit: 10 } })
       .then((res) => {
         setVocabs(res.data.data.data)
         setTotalPage(res.data.data.pagination.totalPage)
         setTotalItem(res.data.data.pagination.totalItem)
+        setLoadError('')
       })
-      .catch(() => {})
+      .catch((err) => setLoadError(getErrorMessage(err, 'Gagal memuat vocab')))
   }, [])
 
   useEffect(() => {
@@ -38,13 +35,13 @@ export default function VocabPage() {
   // ponytail: resets page to 1 when user adds/deletes from another page and it might be empty
   const afterMutation = () => fetchVocabs(1).then(() => setPage(1))
 
-  const handleSave = async (data: { indonesia: string; inggris: string }) => {
+  const handleSave = async (data: VocabPayload) => {
     if (editId) {
       await api.put(`/vocab/${editId}`, data)
     } else {
       await api.post('/vocab', data)
     }
-    afterMutation()
+    await afterMutation()
   }
 
   const openAdd = () => { setEditId(null); setShowForm(true) }
@@ -57,8 +54,8 @@ export default function VocabPage() {
       await api.delete(`/vocab/${deleteId}`)
       setDeleteId(null)
       afterMutation()
-    } catch (err: any) {
-      setDeleteError(err.response?.data?.message || 'Gagal menghapus')
+    } catch (err) {
+      setDeleteError(getErrorMessage(err, 'Gagal menghapus'))
     } finally { setDeleting(false) }
   }
 
@@ -90,6 +87,8 @@ export default function VocabPage() {
           Tambah
         </button>
       </div>
+
+      {loadError && <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{loadError}</p>}
 
       {vocabs.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-white/60 py-24">

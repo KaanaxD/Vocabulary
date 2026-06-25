@@ -1,5 +1,7 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import api from '../../../services/api'
+import type { AuthResponse } from '../../../types/api'
+import getErrorMessage from '../../../utils/getErrorMessage'
 import Modal from '../../ui/Modal'
 import Button from '../../ui/Button'
 
@@ -17,7 +19,7 @@ export default function AuthModal({ onClose, onAuth }: AuthModalProps) {
   const [justRegistered, setJustRegistered] = useState(false)
   const passwordRef = useRef<HTMLInputElement>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
@@ -28,13 +30,12 @@ export default function AuthModal({ onClose, onAuth }: AuthModalProps) {
         setJustRegistered(true)
         setMode('login')
       } else {
-        const res = await api.post('/auth/login', { username, password })
-        localStorage.setItem('token', res.data.token)
+        const res = await api.post<AuthResponse>('/auth/login', { username, password })
         onAuth(res.data.token)
         onClose()
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Terjadi kesalahan')
+    } catch (err) {
+      setError(getErrorMessage(err))
     } finally { setLoading(false) }
   }
 
@@ -48,7 +49,7 @@ export default function AuthModal({ onClose, onAuth }: AuthModalProps) {
 
         <div className="mb-6 flex rounded-xl bg-gray-100 p-1">
           {(['login', 'register'] as const).map((m) => (
-            <button key={m} type="button" onClick={() => { setMode(m); setError(''); setJustRegistered(false) }}
+            <button key={m} type="button" disabled={loading} onClick={() => { setMode(m); setError(''); setJustRegistered(false) }}
               className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all duration-200 ${mode === m ? 'bg-white text-[#007979] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>{m === 'login' ? 'Login' : 'Register'}</button>
           ))}
         </div>
@@ -61,14 +62,14 @@ export default function AuthModal({ onClose, onAuth }: AuthModalProps) {
         <div className="space-y-4">
           <div>
             <label className="mb-1.5 block text-sm font-medium text-gray-600">Username</label>
-            <input type="text" placeholder="Masukkan username" value={username}
+            <input type="text" placeholder="Masukkan username" value={username} disabled={loading}
               onChange={(e) => setUsername(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); passwordRef.current?.focus() } }}
               className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition-all duration-200 focus:border-[#24B1B1] focus:ring-2 focus:ring-[#24B1B1]/10" />
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-gray-600">Password</label>
-            <input ref={passwordRef} type="password" placeholder="Masukkan password" value={password}
+            <input ref={passwordRef} type="password" placeholder="Masukkan password" value={password} disabled={loading}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition-all duration-200 focus:border-[#24B1B1] focus:ring-2 focus:ring-[#24B1B1]/10" />
           </div>

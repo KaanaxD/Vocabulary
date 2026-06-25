@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
+import getErrorMessage from '../../../utils/getErrorMessage'
 import Modal from '../../ui/Modal'
 import Button from '../../ui/Button'
 
@@ -21,13 +22,13 @@ export default function VocabForm({ initial, editId, onSave, onClose }: VocabFor
   const [results, setResults] = useState<{ line: number; text: string; ok: boolean; msg: string }[]>([])
   const inggrisRef = useRef<HTMLInputElement>(null)
 
-  const handleSingleSubmit = async (e: React.FormEvent) => {
+  const handleSingleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError('')
     if (!form.indonesia.trim() || !form.inggris.trim()) { setError('Kedua field harus diisi'); return }
     setSaving(true)
     try { await onSave(form); onClose() }
-    catch (err: any) { setError(err.response?.data?.message || 'Gagal menyimpan') }
+    catch (err) { setError(getErrorMessage(err, 'Gagal menyimpan')) }
     finally { setSaving(false) }
   }
 
@@ -45,7 +46,7 @@ export default function VocabForm({ initial, editId, onSave, onClose }: VocabFor
     const out: typeof results = []
     for (const [i, p] of pairs.entries()) {
       try { await onSave(p); out.push({ line: i + 1, text: `${p.indonesia} | ${p.inggris}`, ok: true, msg: 'Berhasil' }) }
-      catch (err: any) { out.push({ line: i + 1, text: `${p.indonesia} | ${p.inggris}`, ok: false, msg: err.response?.data?.message || 'Gagal' }) }
+      catch (err) { out.push({ line: i + 1, text: `${p.indonesia} | ${p.inggris}`, ok: false, msg: getErrorMessage(err, 'Gagal') }) }
       setResults([...out])
     }
     setSaving(false)

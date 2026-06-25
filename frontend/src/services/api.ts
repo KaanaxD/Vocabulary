@@ -1,7 +1,11 @@
-import axios from 'axios'
+import axios, { type AxiosError } from 'axios'
+
+interface ApiErrorBody {
+  message?: string
+}
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -16,15 +20,16 @@ api.interceptors.request.use(
     }
     return config
   },
-  (error) => Promise.reject(error),
+  (error: unknown) => Promise.reject(error),
 )
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  (error: AxiosError<ApiErrorBody>) => {
     const url = error.config?.url ?? ''
     if (error.response?.status === 401 && !url.endsWith('/auth/login') && !url.endsWith('/auth/register')) {
       localStorage.removeItem('token')
+      window.dispatchEvent(new Event('auth:unauthorized'))
     }
     return Promise.reject(error)
   },

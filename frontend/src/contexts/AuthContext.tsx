@@ -1,8 +1,10 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
+import useLocalStorage from '../hooks/useLocalStorage'
 
 interface AuthContextValue {
   token: string | null
+  authReady: boolean
   showAuth: boolean
   setShowAuth: (v: boolean) => void
   showLogoutConfirm: boolean
@@ -16,17 +18,28 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'))
+  const [token, saveToken, removeToken] = useLocalStorage('token')
+  const [authReady, setAuthReady] = useState(false)
   const [showAuth, setShowAuth] = useState(false)
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
 
+  useEffect(() => {
+    setAuthReady(true)
+    const handleUnauthorized = () => {
+      removeToken()
+      navigate('/')
+    }
+    window.addEventListener('auth:unauthorized', handleUnauthorized)
+    return () => window.removeEventListener('auth:unauthorized', handleUnauthorized)
+  }, [navigate, removeToken])
+
   const handleAuth = (newToken: string) => {
-    setToken(newToken)
+    saveToken(newToken)
+    setShowAuth(false)
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    setToken(null)
+    removeToken()
     setShowLogoutConfirm(false)
     navigate('/')
   }
@@ -37,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ token, showAuth, setShowAuth, showLogoutConfirm, setShowLogoutConfirm, handleAuth, handleLogout, handleGetStarted }}>
+    <AuthContext.Provider value={{ token, authReady, showAuth, setShowAuth, showLogoutConfirm, setShowLogoutConfirm, handleAuth, handleLogout, handleGetStarted }}>
       {children}
     </AuthContext.Provider>
   )
