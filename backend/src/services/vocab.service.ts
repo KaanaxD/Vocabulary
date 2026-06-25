@@ -15,9 +15,14 @@ export default function vocabService() {
             }
             return data[0]
         },
-        addVocab: async (user_id: number, indonesia: string, inggris: string) => {
+        addVocab: async (user_id: number, indonesia: string, english: string, category: string | null = null) => {
             try {
-                const data = await vocabRepository().addVocabQuery(user_id, formatInput(indonesia), formatInput(inggris))
+                if (category) {
+                    category = formatInput(category)
+                } else {
+                    category = null;
+                }
+                const data = await vocabRepository().addVocabQuery(user_id, formatInput(indonesia), formatInput(english), category)
                 if (!data) {
                     throw createError(500, "vocab gagal ditambahkan")
                 }
@@ -37,8 +42,13 @@ export default function vocabService() {
             }
             return data[0]
         },
-        editVocab: async (id: number, indonesia: string, inggris: string) => {
-            const data = await vocabRepository().editVocabQuery(id, formatInput(indonesia), formatInput(inggris))
+        editVocab: async (id: number, indonesia: string, english: string, category: string | null = null) => {
+            if (category) {
+                category = formatInput(category)
+            } else {
+                category = null;
+            }
+            const data = await vocabRepository().editVocabQuery(id, formatInput(indonesia), formatInput(english), category)
             if (!data) {
                 throw createError(404, "vocab tidak ditemukan")
             }

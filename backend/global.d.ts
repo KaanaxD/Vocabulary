@@ -15,6 +15,7 @@ declare global {
         id: number;
         indonesia: string;
         english: string;
+        category: string|null
         added_at: Date;
     }
 

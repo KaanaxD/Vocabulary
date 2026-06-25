@@ -1,11 +1,11 @@
 import { Response, Request, NextFunction } from 'express';
 import vocabService from '../services/vocab.service';
-import {z} from "zod"
+import { z } from "zod"
 
 const ReqBodySchema = z.object({
-    indonesia: z.string("input harus berupa kata"),
-    inggris: z.string("input harus berupa kata")
-
+    indonesia: z.string("input harus berupa kata").min(1, "input tidak boleh kosong"),
+    english: z.string("input harus berupa kata").min(1, "input tidak boleh kosong"),
+    category: z.string("input harus berupa kata").nullable().optional()
 })
 type ReqBody = z.infer<typeof ReqBodySchema>
 interface ReqQuery {
@@ -43,8 +43,8 @@ export default function vocabController() {
         },
         addVocab: async (req: Request<{}, {}, ReqBody, {}>, res: Response<ResBody>, next: NextFunction) => {
             try {
-                const { indonesia, inggris } = ReqBodySchema.parse(req.body)
-                const data = await vocabService().addVocab(req.user.id, indonesia, inggris)
+                const { indonesia, english, category } = ReqBodySchema.parse(req.body)
+                const data = await vocabService().addVocab(req.user.id, indonesia, english, category)
                 res.json({
                     success: true,
                     message: 'Berhasil menambahkan',
@@ -70,8 +70,8 @@ export default function vocabController() {
         },
         updateVocab: async (req: Request<{ id: number }, {}, ReqBody, {}>, res: Response<ResBody>, next: NextFunction) => {
             try {
-                const { indonesia, inggris } = ReqBodySchema.parse(req.body)
-                const data = await vocabService().editVocab(req.params.id, indonesia, inggris)
+                const { indonesia, english, category } = ReqBodySchema.parse(req.body)
+                const data = await vocabService().editVocab(req.params.id, indonesia, english, category)
                 res.json({
                     success: true,
                     message: 'menampilkan semua vocab',

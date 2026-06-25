@@ -9,11 +9,15 @@ CREATE TABLE users(
 CREATE TABLE vocab(
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    english TEXT NOT NULL UNIQUE,
-    indonesia TEXT NOT NULL UNIQUE,
+    english TEXT NOT NULL,
+    indonesia TEXT NOT NULL,
+    category TEXT,
     added_at TIMESTAMP DEFAULT NOW()
 )
 
+CREATE TABLE 
+
+DROP TABLE vocab;
 
 INSERT INTO vocab (user_id, english, indonesia) VALUES
 (1, 'Apple', 'Apel'),
