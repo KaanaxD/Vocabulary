@@ -9,11 +9,15 @@ export function auth(req: Request, res: Response, next: NextFunction) {
         return next( createError(401, "anda belum login"))
     }
     const bearerToken = token.split(" ")[1] as string
-    const verify = jwt.verify(bearerToken,SECRET) as UserHeader
-    if (!verify) {
+    try {
+        const verify = jwt.verify(bearerToken,SECRET) as UserHeader
+        if (!verify) {
+            return next(createError(401, "invalid token"))
+        }
+        req.user = verify
+        next()
+    } catch (error) {
         return next(createError(401, "invalid token"))
     }
-    req.user = verify
-    next()
 
 }

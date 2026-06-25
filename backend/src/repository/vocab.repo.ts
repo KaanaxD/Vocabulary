@@ -4,7 +4,7 @@ export default function vocabRepository() {
     return {
         getAllVocabQuery: async (user_id: number, page: number, limit: number): Promise<{ data: Vocab[], pagination: Pagination } | null> => {
             const offset = (page - 1) * limit
-            const vocab = await pool.query(`SELECT * FROM vocab WHERE user_id = $1 LIMIT $2 OFFSET $3`, [user_id, limit, offset])
+            const vocab = await pool.query(`SELECT * FROM vocab WHERE user_id = $1  ORDER BY added_at DESC LIMIT $2 OFFSET $3 `, [user_id, limit, offset])
             const totalItem = await pool.query(`SELECT COUNT(*) FROM vocab WHERE user_id = $1`, [user_id])
             const totalPage = Math.ceil(Number(totalItem.rows[0].count) / limit)
             if (!vocab) {

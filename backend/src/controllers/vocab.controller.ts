@@ -43,7 +43,7 @@ export default function vocabController() {
         },
         addVocab: async (req: Request<{}, {}, ReqBody, {}>, res: Response<ResBody>, next: NextFunction) => {
             try {
-                const { indonesia, inggris } = req.body
+                const { indonesia, inggris } = ReqBodySchema.parse(req.body)
                 const data = await vocabService().addVocab(req.user.id, indonesia, inggris)
                 res.json({
                     success: true,
@@ -60,7 +60,7 @@ export default function vocabController() {
                 const data = await vocabService().deleteVocab(req.params.id)
                 res.json({
                     success: true,
-                    message: `1berhasil menghapus vocab dengan id : ${req.params.id}`,
+                    message: `berhasil menghapus vocab dengan id : ${req.params.id}`,
                     data: data
                 })
             } catch (error) {
@@ -68,10 +68,10 @@ export default function vocabController() {
             }
 
         },
-        updateVocab: async (req: Request<{}, {}, ReqBody, {}>, res: Response<ResBody>, next: NextFunction) => {
+        updateVocab: async (req: Request<{ id: number }, {}, ReqBody, {}>, res: Response<ResBody>, next: NextFunction) => {
             try {
-                const { indonesia, inggris } = req.body
-                const data = await vocabService().editVocab(req.user.id, indonesia, inggris)
+                const { indonesia, inggris } = ReqBodySchema.parse(req.body)
+                const data = await vocabService().editVocab(req.params.id, indonesia, inggris)
                 res.json({
                     success: true,
                     message: 'menampilkan semua vocab',

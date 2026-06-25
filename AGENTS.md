@@ -36,3 +36,22 @@ Global ambient types in `backend/global.d.ts` (`User`, `ResBody`, `Err`). Module
 - DB: PostgreSQL via `pg` Pool with `DB_URL` env var. Schema in `migration/INIT.sql`.
 - `.env` at `backend/` is gitignored. Template: `PORT=3000`, `DB_URL=...`, `JWT_SECRET=...`.
 - TypeScript strict mode with `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`.
+
+## Frontend Folder Structure
+
+Setiap komponen dalam folder sendiri dengan `index.ts` yang re-export default. Jangan campur beberapa komponen dalam satu file — pisahkan per folder sesuai jenisnya:
+
+| Folder | Isi |
+|---|---|
+| `pages/` | Halaman (route-level component) — tiap subfolder berisi `Nama.tsx` + `index.ts` |
+| `components/layout/` | Komponen layout (Navbar, AuthModal, dll) |
+| `components/common/` | Komponen reuse kecil (Placeholder, LogoutConfirm, LoadingSpinner, dll) |
+| `components/ui/` | Komponen UI dasar (Button, Input, dll) |
+| `services/` | Service layer (axios instance, API calls) |
+| `hooks/` | Custom hooks |
+| `types/` | Type definitions |
+| `constants/` | Constants |
+| `utils/` | Utility functions |
+| `styles/` | Global styles |
+
+**Pattern:** `src/pages/NamaPage/NamaPage.tsx` + `src/pages/NamaPage/index.ts` (re-export default).
