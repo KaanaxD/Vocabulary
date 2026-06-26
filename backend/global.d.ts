@@ -15,7 +15,7 @@ declare global {
         id: number;
         indonesia: string;
         english: string;
-        category: string|null
+        category_id: number
         added_at: Date;
     }
 
@@ -37,6 +37,8 @@ declare global {
     interface ResBody {
         success: boolean;
         message: string;
+        category?: any
+        vocab?: any
         data?: any
         status?: number
         token?: string

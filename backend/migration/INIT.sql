@@ -17,14 +17,18 @@ CREATE TABLE vocab (
     user_id INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     english TEXT NOT NULL,
     indonesia TEXT NOT NULL,
-    category_id INTEGER REFERENCES categories (id) ON DELETE SET NULL,
+    category_id INTEGER REFERENCES categories (id) ON DELETE CASCADE,
     added_at TIMESTAMP DEFAULT NOW(),
-    UNIQUE(user_id, english, indonesia)
+    UNIQUE(user_id, english, indonesia,category_id)
 );
+
+ALTER TABLE vocab
+ADD CONSTRAINT uq_vocabulary_composite UNIQUE(user_id, english, indonesia, category_id);
 
 SELECT * FROM categories;
 SELECT * FROM vocab;
 SELECT * FROM users;
+SELECT * FROM vocab WHERE category_id = 11
 
 -- CREATE TABLE vocab (
 --     id SERIAL PRIMARY KEY,

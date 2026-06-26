@@ -1,12 +1,19 @@
 import { Response, Request, NextFunction } from 'express';
 import vocabService from '../services/vocab.service';
 import { z } from "zod"
+import categoryService from '../services/category.service';
 
 const ReqBodySchema = z.object({
     indonesia: z.string("input harus berupa kata").min(1, "input tidak boleh kosong"),
     english: z.string("input harus berupa kata").min(1, "input tidak boleh kosong"),
-    category: z.string("input harus berupa kata").nullable().optional()
+    category_id: z.number("id kategori berupa angka")
 })
+
+const ReqParamsSchema = z.object({
+    id: z.number("id berupa angka")
+})
+
+type ReqParams = z.infer<typeof ReqParamsSchema>
 type ReqBody = z.infer<typeof ReqBodySchema>
 interface ReqQuery {
     page: number,
@@ -17,11 +24,11 @@ export default function vocabController() {
         getAllVocab: async (req: Request<{}, {}, {}, ReqQuery>, res: Response<ResBody>, next: NextFunction) => {
             try {
                 const { page, limit } = req.query
-                const data = await vocabService().getAllVocab(req.user.id, page, limit)
+                const vocab = await vocabService().getAllVocab(req.user.id, page, limit)
                 res.json({
                     success: true,
                     message: 'menampilkan semua vocab',
-                    data: data
+                    data: vocab
                 })
             } catch (error) {
                 next(error)
@@ -30,11 +37,34 @@ export default function vocabController() {
         },
         getVocabById: async (req: Request<{ id: number }, {}, {}, {}>, res: Response<ResBody>, next: NextFunction) => {
             try {
-                const data = await vocabService().getVocab(req.params.id)
+                const vocab = await vocabService().getVocab(req.params.id)
+                const category = await categoryService().getCategoryById(Number(vocab?.category_id))
                 res.json({
                     success: true,
                     message: 'menampilkan semua vocab',
-                    data: data
+                    data: {
+                        vocab: {
+                            category: category,
+                            ...vocab,
+                        }
+                    }
+                })
+            } catch (error) {
+                next(error)
+            }
+
+        },
+        getVocabByCategoryId: async (req: Request<{ id: number }, {}, {}, {}>, res: Response<ResBody>, next: NextFunction) => {
+            try {
+                const data = await vocabService().getVocabByCategoryId(req.params.id)
+                const category = await categoryService().getCategoryById(req.params.id)
+                res.json({
+                    success: true,
+                    message: 'menampilkan semua vocab',
+                    data: {
+                        category: category,
+                        vocab: data
+                    }
                 })
             } catch (error) {
                 next(error)
@@ -43,8 +73,8 @@ export default function vocabController() {
         },
         addVocab: async (req: Request<{}, {}, ReqBody, {}>, res: Response<ResBody>, next: NextFunction) => {
             try {
-                const { indonesia, english, category } = ReqBodySchema.parse(req.body)
-                const data = await vocabService().addVocab(req.user.id, indonesia, english, category)
+                const { indonesia, english, category_id } = ReqBodySchema.parse(req.body)
+                const data = await vocabService().addVocab(req.user.id, indonesia, english, category_id)
                 res.json({
                     success: true,
                     message: 'Berhasil menambahkan',
@@ -70,8 +100,8 @@ export default function vocabController() {
         },
         updateVocab: async (req: Request<{ id: number }, {}, ReqBody, {}>, res: Response<ResBody>, next: NextFunction) => {
             try {
-                const { indonesia, english, category } = ReqBodySchema.parse(req.body)
-                const data = await vocabService().editVocab(req.params.id, indonesia, english, category)
+                const { indonesia, english, category_id } = ReqBodySchema.parse(req.body)
+                const data = await vocabService().editVocab(req.params.id, indonesia, english, category_id)
                 res.json({
                     success: true,
                     message: 'menampilkan semua vocab',

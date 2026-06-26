@@ -16,7 +16,7 @@ export default function categoryService() {
             if (!data) {
                 throw createError(404, "categories tidak ditemukan")
             }
-            return data
+            return data[0]
         },
         addCategory: async (user_id: number, name: string) => {
             try {
