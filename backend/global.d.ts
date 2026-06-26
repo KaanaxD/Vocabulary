@@ -15,6 +15,7 @@ declare global {
         id: number;
         indonesia: string;
         english: string;
+        category_id: number
         added_at: Date;
     }
 
@@ -25,9 +26,19 @@ declare global {
         totalItem: number
     }
 
+    interface Category {
+        id: number;
+        user_id?: number;
+        name: string;
+        created_at: Date;
+    }
+    
+
     interface ResBody {
         success: boolean;
         message: string;
+        category?: any
+        vocab?: any
         data?: any
         status?: number
         token?: string
