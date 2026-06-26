@@ -1,21 +1,22 @@
 import { useRef, useState, type FormEvent } from 'react'
+import type { Category, VocabPayload } from '../../../types/api'
 import getErrorMessage from '../../../utils/getErrorMessage'
 import Modal from '../../ui/Modal'
 import Button from '../../ui/Button'
 
-interface VocabFormData { indonesia: string; inggris: string }
 interface VocabFormProps {
-  initial: VocabFormData
+  initial: VocabPayload
   editId: number | null
-  onSave: (data: VocabFormData) => Promise<void>
+  categories: Category[]
+  onSave: (data: VocabPayload) => Promise<void>
   onClose: () => void
 }
 
 const inputClass = 'w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition-all duration-200 focus:border-[#24B1B1] focus:ring-2 focus:ring-[#24B1B1]/10'
 
-export default function VocabForm({ initial, editId, onSave, onClose }: VocabFormProps) {
+export default function VocabForm({ initial, editId, categories, onSave, onClose }: VocabFormProps) {
   const [batch, setBatch] = useState(false)
-  const [form, setForm] = useState<VocabFormData>(initial)
+  const [form, setForm] = useState<VocabPayload>(initial)
   const [batchText, setBatchText] = useState('')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
@@ -25,7 +26,8 @@ export default function VocabForm({ initial, editId, onSave, onClose }: VocabFor
   const handleSingleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError('')
-    if (!form.indonesia.trim() || !form.inggris.trim()) { setError('Kedua field harus diisi'); return }
+    if (!form.indonesia.trim() || !form.english.trim()) { setError('Kedua field harus diisi'); return }
+    if (!form.category_id) { setError('Pilih kategori dulu'); return }
     setSaving(true)
     try { await onSave(form); onClose() }
     catch (err) { setError(getErrorMessage(err, 'Gagal menyimpan')) }
@@ -36,17 +38,18 @@ export default function VocabForm({ initial, editId, onSave, onClose }: VocabFor
     setError('')
     const lines = batchText.split('\n').map((l) => l.trim()).filter(Boolean)
     if (!lines.length) { setError('Isi minimal satu baris'); return }
-    const pairs: VocabFormData[] = []
+    if (!form.category_id) { setError('Pilih kategori dulu'); return }
+    const pairs: VocabPayload[] = []
     for (const [i, line] of lines.entries()) {
       const parts = line.split(/[|,]/).map((s) => s.trim())
       if (parts.length < 2 || !parts[0] || !parts[1]) { setError(`Baris ${i + 1}: format salah. Gunakan: indonesia | inggris`); return }
-      pairs.push({ indonesia: parts[0], inggris: parts[1] })
+      pairs.push({ indonesia: parts[0], english: parts[1], category_id: form.category_id })
     }
     setSaving(true); setResults([])
     const out: typeof results = []
     for (const [i, p] of pairs.entries()) {
-      try { await onSave(p); out.push({ line: i + 1, text: `${p.indonesia} | ${p.inggris}`, ok: true, msg: 'Berhasil' }) }
-      catch (err) { out.push({ line: i + 1, text: `${p.indonesia} | ${p.inggris}`, ok: false, msg: getErrorMessage(err, 'Gagal') }) }
+      try { await onSave(p); out.push({ line: i + 1, text: `${p.indonesia} | ${p.english}`, ok: true, msg: 'Berhasil' }) }
+      catch (err) { out.push({ line: i + 1, text: `${p.indonesia} | ${p.english}`, ok: false, msg: getErrorMessage(err, 'Gagal') }) }
       setResults([...out])
     }
     setSaving(false)
@@ -74,9 +77,16 @@ export default function VocabForm({ initial, editId, onSave, onClose }: VocabFor
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-gray-600">Inggris</label>
-            <input ref={inggrisRef} type="text" placeholder="Contoh: Apple" value={form.inggris}
-              onChange={(e) => setForm({ ...form, inggris: e.target.value })}
+            <input ref={inggrisRef} type="text" placeholder="Contoh: Apple" value={form.english}
+              onChange={(e) => setForm({ ...form, english: e.target.value })}
               className={inputClass} />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-600">Kategori</label>
+            <select value={form.category_id} onChange={(e) => setForm({ ...form, category_id: Number(e.target.value) })} className={inputClass}>
+              <option value={0}>Pilih kategori</option>
+              {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
+            </select>
           </div>
         </div>
         <Button type="submit" loading={saving} className="mt-6 w-full">{saving ? 'Menyimpan...' : editId ? 'Simpan' : 'Tambah'}</Button>
@@ -89,6 +99,10 @@ export default function VocabForm({ initial, editId, onSave, onClose }: VocabFor
       <h2 className="mb-1 text-2xl font-bold text-gray-900">Tambah Banyak Vocab</h2>
       <p className="mb-6 text-sm text-gray-400">Satu baris = satu vocab. Format: <code className="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-mono text-gray-600">indonesia | inggris</code></p>
       {error && <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>}
+      <select value={form.category_id} onChange={(e) => setForm({ ...form, category_id: Number(e.target.value) })} className={`${inputClass} mb-4`}>
+        <option value={0}>Pilih kategori</option>
+        {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
+      </select>
       <textarea rows={8} placeholder="Apel | Apple&#10;Buku | Book&#10;Meja | Table" value={batchText}
         onChange={(e) => setBatchText(e.target.value)}
         className="mb-4 w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition-all duration-200 focus:border-[#24B1B1] focus:ring-2 focus:ring-[#24B1B1]/10" />

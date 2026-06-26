@@ -3,7 +3,8 @@ import categoryService from '../services/category.service';
 import z from 'zod';
 
 const ReqBodySchema = z.object({
-    name: z.string("harus berupa kata/string").min(1, "nama kategori tidak boleh kosong")
+    name: z.string("harus berupa kata/string").min(1, "nama kategori tidak boleh kosong"),
+    detail: z.string("harus berupa kata/string").nullable()
 })
 type ReqBody = z.infer<typeof ReqBodySchema>
 
@@ -35,8 +36,11 @@ export default function categoryController() {
         },
         addCategory: async (req: Request<{}, {}, ReqBody>, res: Response<ResBody>, next: NextFunction) => {
             try {
-                const { name } = ReqBodySchema.parse(req.body)
-                const data = await categoryService().addCategory(req.user.id, name)
+                let { name, detail } = ReqBodySchema.parse(req.body)
+                if (detail == "") {
+                    detail = null
+                }
+                const data = await categoryService().addCategory(req.user.id, name, detail)
                 res.json({
                     success: true,
                     message: 'berhasil menambah kategori',
@@ -48,8 +52,11 @@ export default function categoryController() {
         },
         editCategory: async (req: Request<{ id: number }, {}, ReqBody>, res: Response<ResBody>, next: NextFunction) => {
             try {
-                const { name } = ReqBodySchema.parse(req.body)
-                const data = await categoryService().editCategory(req.params.id,name)
+                let { name, detail } = ReqBodySchema.parse(req.body)
+                if (detail == "") {
+                    detail = null
+                }
+                const data = await categoryService().editCategory(req.params.id, name, detail)
                 res.json({
                     success: true,
                     message: 'berhasil mengedit kategori',
@@ -59,7 +66,7 @@ export default function categoryController() {
                 next(error)
             }
         },
-        deleteCategory: async (req: Request<{id:number}>, res: Response<ResBody>, next: NextFunction) => {
+        deleteCategory: async (req: Request<{ id: number }>, res: Response<ResBody>, next: NextFunction) => {
             try {
                 const data = await categoryService().deleteCategory(req.params.id)
                 res.json({

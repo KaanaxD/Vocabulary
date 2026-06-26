@@ -18,9 +18,9 @@ export default function categoryService() {
             }
             return data[0]
         },
-        addCategory: async (user_id: number, name: string) => {
+        addCategory: async (user_id: number, name: string,detail:string|null=null) => {
             try {
-                const data = await categoryRepo().addCategoryQuery(user_id, formatInput(name))
+                const data = await categoryRepo().addCategoryQuery(user_id, formatInput(name),detail)
                 if (!data) {
                     throw createError(404, "user tidak ditemukan")
                 }
@@ -34,9 +34,9 @@ export default function categoryService() {
                 throw error
             }
         },
-        editCategory: async (id: number, name: string) => {
+        editCategory: async (id: number, name: string,detail:string|null=null) => {
             try {
-                const data = await categoryRepo().editCategoryQuery(id, formatInput(name))
+                const data = await categoryRepo().editCategoryQuery(id, formatInput(name),detail)
                 if (!data) {
                     return null
                 }

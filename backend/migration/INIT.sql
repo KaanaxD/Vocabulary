@@ -9,6 +9,7 @@ CREATE TABLE categories (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     name TEXT NOT NULL,
+    detail TEXT,
     created_at TIMESTAMP DEFAULT NOW(),
     UNIQUE(user_id, name)
 );
@@ -61,3 +62,4 @@ VALUES (1, 'Apple', 'Apel'),
 SELECT * FROM vocab WHERE id = ANY ($1);
 
 SELECT * FROM vocab
+

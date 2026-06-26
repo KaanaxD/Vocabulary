@@ -21,7 +21,16 @@ export interface Vocab {
   id: number
   indonesia: string
   english: string
+  category_id: number
   added_at: string
+}
+
+export interface Category {
+  id: number
+  user_id?: number
+  name: string
+  detail: string | null
+  created_at: string
 }
 
 export interface VocabListResponse {
@@ -31,5 +40,11 @@ export interface VocabListResponse {
 
 export interface VocabPayload {
   indonesia: string
-  inggris: string
+  english: string
+  category_id: number
+}
+
+export interface CategoryVocabResponse {
+  category: Category
+  vocab: Vocab[]
 }

@@ -16,15 +16,15 @@ export default function categoryRepo() {
             }
             return category.rows;
         },
-        editCategoryQuery: async (id: number, name: string): Promise<Category[] | null> => {
-            const vocab = await pool.query(`UPDATE categories SET name=$1 WHERE ID = $2 RETURNING *`, [name, id])
+        editCategoryQuery: async (id: number, name: string,detail:string|null=null): Promise<Category[] | null> => {
+            const vocab = await pool.query(`UPDATE categories SET name=$1, detail=$2 WHERE ID = $3 RETURNING *`, [name,detail, id])
             if (vocab.rows.length == 0) {
                 return null
             }
             return vocab.rows;
         },
-        addCategoryQuery: async (user_id: number, name: string): Promise<Vocab[] | null> => {
-            const vocab = await pool.query(`INSERT INTO categories (user_id,name) VALUES ($1,$2) RETURNING *`, [user_id, name])
+        addCategoryQuery: async (user_id: number, name: string,detail:string|null=null): Promise<Vocab[] | null> => {
+            const vocab = await pool.query(`INSERT INTO categories (user_id,name,detail) VALUES ($1,$2,$3) RETURNING *`, [user_id, name,detail])
             if (vocab.rows.length == 0) {
                 return null
             }
