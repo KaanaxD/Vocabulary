@@ -1,6 +1,7 @@
 import { Response, Request, NextFunction } from 'express';
 import { z } from "zod"
 import authService from '../services/auth.service';
+import userService from '../services/user.service';
 const reqBodySchema = z.object({
     username: z.string("input berupa string").min(3, "username minimal 3 karakter"),
     password: z.string("input ebrupa string").min(8, "password minimal 8 karakter")
@@ -13,7 +14,7 @@ export default function authController() {
         register: async (req: Request<{}, {}, ReqBody, {}>, res: Response<ResBody>, next: NextFunction) => {
             try {
                 const { username, password } = reqBodySchema.parse(req.body)
-                const data = await authService().addUser(username, password)
+                const data = await userService().addUser(username, password)
                 res.json({
                     success: true,
                     message: 'akun berhasil didaftar',

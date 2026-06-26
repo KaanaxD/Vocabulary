@@ -31,7 +31,6 @@ export default function vocabService() {
                 if (error instanceof Error && error.message.includes('duplicate')) {
                     throw createError(409, "vocab sudah ada")
                 }
-                console.error("vocab service error")
                 throw createError(500, "vocab gagal ditambahkan")
             }
         },

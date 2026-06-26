@@ -27,15 +27,15 @@ export default function vocabRepository() {
             }
             return vocab.rows;
         },
-        getVocabByCategoryQuery: async (user_id: number, category: string) => {
-            const vocab = await pool.query(`SELECT * FROM vocab WHERE user_id = $1 and category = $2`, [user_id, category])
-            if (vocab.rows.length == 0) {
-                return null
-            }
-            return vocab.rows
-        },
+        // getVocabByCategoryQuery: async (user_id: number, category: string) => {
+        //     const vocab = await pool.query(`SELECT * FROM vocab WHERE user_id = $1 and category = $2`, [user_id, category])
+        //     if (vocab.rows.length == 0) {
+        //         return null
+        //     }
+        //     return vocab.rows
+        // },
         addVocabQuery: async (user_id: number, indonesia: string, english: string, category: string | null = null): Promise<Vocab[] | null> => {
-            const vocab = await pool.query(`INSERT INTO vocab (user_id,indonesia,english,category) VALUES ($1,$2,$3,COALESCE($4,null)) RETURNING *`, [user_id, indonesia, english, category])
+            const vocab = await pool.query(`INSERT INTO vocab (user_id,indonesia,english,category_id) VALUES ($1,$2,$3,COALESCE($4,null)) RETURNING *`, [user_id, indonesia, english, category])
             if (vocab.rows.length == 0) {
                 return null
             }

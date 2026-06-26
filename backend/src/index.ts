@@ -5,6 +5,7 @@ import { errorHandler } from "./middlewares/errorHandler"
 import { vocabRouter } from "./routes/vocab.route"
 import { auth } from "./middlewares/auth"
 import cors from "cors"
+import { categoryRouter } from "./routes/category.route"
 
 const app = express()
 const port = process.env.PORT
@@ -16,6 +17,7 @@ app.use(cors({
 }))
 app.use("/api/auth",authRouter)
 app.use("/api/vocab",auth,vocabRouter)
+app.use("/api/category",auth,categoryRouter)
 
 app.use(errorHandler)
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))

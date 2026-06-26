@@ -26,6 +26,14 @@ declare global {
         totalItem: number
     }
 
+    interface Category {
+        id: number;
+        user_id?: number;
+        name: string;
+        created_at: Date;
+    }
+    
+
     interface ResBody {
         success: boolean;
         message: string;
