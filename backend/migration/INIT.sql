@@ -23,6 +23,34 @@ CREATE TABLE vocab (
     UNIQUE(user_id, english, indonesia,category_id)
 );
 
+-- 1. Tabel soal (bank soal)
+CREATE TABLE practice (
+    id SERIAL PRIMARY KEY,
+    category_id INTEGER NOT NULL REFERENCES categories (id) ON DELETE CASCADE,
+    soal VARCHAR NOT NULL,
+    jawaban VARCHAR NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- 2. Tabel session (sesi practice user)
+CREATE TABLE practice_sessions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    category_id INTEGER NOT NULL REFERENCES categories (id) ON DELETE CASCADE,
+    status VARCHAR(20) NOT NULL DEFAULT 'active', -- 'active', 'completed'
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- 3. Tabel jawaban (log jawaban user)
+CREATE TABLE practice_answers (
+    id SERIAL PRIMARY KEY,
+    session_id INTEGER NOT NULL REFERENCES practice_sessions (id) ON DELETE CASCADE,
+    practice_id INTEGER NOT NULL REFERENCES practice (id) ON DELETE CASCADE,
+    user_answer VARCHAR NOT NULL,
+    is_correct BOOLEAN NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
 ALTER TABLE vocab
 ADD CONSTRAINT uq_vocabulary_composite UNIQUE(user_id, english, indonesia, category_id);
 
